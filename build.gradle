@@ -1,0 +1,56 @@
+import java.nio.file.Paths
+
+apply plugin: 'java'
+
+group = 'net.arnx'
+archivesBaseName = 'rhino-postcss'
+version = '0.1.0'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+	compile 'org.mozilla:rhino:latest.release'
+	compile files('src/main/classes')
+
+    testCompile 'junit:junit:4.+'
+}
+
+compileJava {
+	options.encoding = 'UTF-8'
+}
+
+compileTestJava {
+	options.encoding = 'UTF-8'
+}
+
+javadoc {
+	options {
+		links 'https://docs.oracle.com/javase/8/docs/api/'
+		locale = 'en_US'
+		encoding = 'UTF-8'
+		docEncoding = 'UTF-8'
+		charSet = 'UTF-8'
+		author = true
+	}
+}
+
+task javadocJar(type: Jar) {
+	classifier = 'javadoc'
+	from javadoc
+}
+
+task sourcesJar(type: Jar) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+task compileModules(type: JavaExec) {
+	main = 'net.arnx.rhinode.compile.RhinodeCompiler'
+	classpath = sourceSets.main.runtimeClasspath
+	args('src/main/resources', 'src/main/classes')
+}
