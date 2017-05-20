@@ -24,6 +24,7 @@ public class PostCSS implements AutoCloseable {
   public static void main(String[] args) throws IOException {
     try (PostCSS postcss = new PostCSS()) {
       postcss.use("postcss-cssnext");
+      postcss.use("cssnano");
       postcss.option(Option.CREATE_SOURCE_MAP, true);
       postcss.option(Option.SOURCE_MAP_WITH_SOURCES_CONTENT, true);
       postcss.option(Option.ADD_SOURCE_MAPPING_URL, false);

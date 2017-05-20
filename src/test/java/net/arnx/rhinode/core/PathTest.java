@@ -30,6 +30,15 @@ public class PathTest {
   }
 
   @Test
+  public void testExtname() throws Exception {
+    assertEquals("", (String)engine.eval("require('path').extname('.')"));
+    assertEquals(".txt", (String)engine.eval("require('path').extname('aaa\\\\text.txt')"));
+    assertEquals("", (String)engine.eval("require('path').extname('aaa\\\\text')"));
+    assertEquals(".txt", (String)engine.eval("require('path').extname('text.bat.txt')"));
+    assertEquals("", (String)engine.eval("require('path').extname('.txt')"));
+  }
+
+  @Test
   public void testDirname() throws Exception {
     assertEquals(".", (String)engine.eval("require('path').dirname('.')"));
     assertEquals("aaa", (String)engine.eval("require('path').dirname('aaa\\\\text.txt')"));
@@ -92,6 +101,6 @@ public class PathTest {
     assertEquals("", (String)engine.eval("require('path').relative('', '')"));
     assertEquals("..\\bbb", (String)engine.eval("require('path').relative('aaa', 'bbb')"));
     assertEquals("..\\ccc", (String)engine.eval("require('path').relative('/aaa/bbb', '/aaa/ccc')"));
-    assertEquals("..\\ccc", (String)engine.eval("require('path').relative('.', '/aaa/ccc')"));
+    assertEquals("..\\..\\..\\..\\aaa\\ccc", (String)engine.eval("require('path').relative('.', '/aaa/ccc')"));
   }
 }

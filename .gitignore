@@ -6,5 +6,6 @@ gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
 
-node_modules/
-base/node_modules/
+/node_modules/
+/base/node_modules/
+/src/main/classes/

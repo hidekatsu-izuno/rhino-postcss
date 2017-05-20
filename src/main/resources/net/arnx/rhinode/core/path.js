@@ -1,3 +1,4 @@
+var JFile = Java.type('java.io.File');
 var JPaths = Java.type('java.nio.file.Paths');
 
 function isString(value) {
@@ -5,7 +6,8 @@ function isString(value) {
 }
 
 var Path = function() {
-	this.sep = JPaths.get('.').getFileSystem().getSeparator();
+	this.sep = String(JFile.separator);
+	this.delimiter = String(JFile.pathSeparator);
 };
 Path.prototype.basename = function(path, ext) {
 	if (!isString(path)) {
@@ -26,6 +28,14 @@ Path.prototype.dirname = function(path) {
 		throw new Error('Type Error: path');
 	}
 	return String(JPaths.get(path).resolveSibling('').toString()) || '.';
+};
+Path.prototype.extname = function(path) {
+	var basename = this.basename(path);
+	var index = basename.lastIndexOf('.');
+	if (index > 1) {
+		return basename.substring(index);
+	}
+	return '';
 };
 Path.prototype.isAbsolute = function(path) {
 	if (!isString(path)) {
