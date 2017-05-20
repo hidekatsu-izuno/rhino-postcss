@@ -54,3 +54,12 @@ task compileModules(type: JavaExec) {
 	classpath = sourceSets.main.runtimeClasspath
 	args('src/main/resources', 'src/main/classes')
 }
+
+jar {
+	dependsOn compileModules
+	from fileTree(dir: 'src/main/classes')
+	exclude '*.js'
+	manifest {
+        attributes 'Main-Class': 'net.arnx.rhinode.postcss.PostCSS'
+    }
+}
