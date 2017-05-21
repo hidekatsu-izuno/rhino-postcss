@@ -22,14 +22,93 @@ import net.arnx.rhinode.util.JsonWriter;
 
 public class PostCSS implements AutoCloseable {
   public static void main(String[] args) throws IOException {
-    try (PostCSS postcss = new PostCSS()) {
-      postcss.use("postcss-cssnext");
-      postcss.use("cssnano");
-      postcss.option(Option.CREATE_SOURCE_MAP, true);
-      postcss.option(Option.SOURCE_MAP_WITH_SOURCES_CONTENT, true);
-      postcss.option(Option.ADD_SOURCE_MAPPING_URL, false);
-      Result result = postcss.process("test.css", "test.min.css");
-      System.out.println("CSS:\n" + result.css() + "\nSource Map:\n" + result.map());
+    try {
+      boolean help = false;
+      Path srcDir = Paths.get(".");
+      String srcFile = null;
+      Path destDir = Paths.get(".");
+      String destFile = null;
+      boolean smap = false;
+
+      String option = null;
+      for (int i = 0; i < args.length; i++) {
+        if (args[i].startsWith("-")) {
+          if ("-?".equals(args[i])) {
+            help = true;
+          } else {
+            option = args[i];
+          }
+        } else if (option != null) {
+          if ("-s".equals(option)) {
+            srcDir = Paths.get(args[i]);
+          } else if ("-d".equals(option)) {
+            destDir = Paths.get(args[i]);
+          } else if ("-o".equals(option)) {
+            destFile = args[i];
+          } else if ("-m".equals(option)) {
+            smap = true;
+          } else {
+            throw new IllegalArgumentException("Invalid option: " + option);
+          }
+          option = null;
+        } else {
+          if (srcFile == null) {
+            srcFile = args[i];
+          } else {
+            throw new IllegalArgumentException("Invalid argument: " + args[i]);
+          }
+        }
+      }
+
+      if (option != null) {
+        throw new IllegalArgumentException("Invalid option: " + option);
+      }
+
+      if (help) {
+        String program = PostCSS.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        int sep = program.lastIndexOf('/') + 1;
+        if (sep == 0) {
+          sep = program.lastIndexOf('\\') + 1;
+        }
+        program = program.substring(sep);
+        if (!program.isEmpty()) {
+          program = "-jar " + program;
+        } else {
+          program = PostCSS.class.getName();
+        }
+
+        System.out.println("Usage: java " + program + " [OPTIONS]... [src]");
+        System.out.println("Options:");
+        System.out.println("  -s  source root dir");
+        System.out.println("  -d  destination root dir");
+        System.out.println("  -o  output filename");
+        System.out.println("  -m  output source map");
+        System.out.println("  -?  this message");
+        System.exit(0);
+      } else {
+        if (srcFile == null) {
+          throw new IllegalStateException("src is required.");
+        }
+
+        try (PostCSS postcss = new PostCSS(srcDir.toUri(), destDir)) {
+          postcss.use("postcss-cssnext");
+          postcss.use("cssnano");
+          if (smap) {
+            postcss.option(Option.CREATE_SOURCE_MAP, true);
+            postcss.option(Option.SOURCE_MAP_WITH_SOURCES_CONTENT, true);
+            postcss.option(Option.ADD_SOURCE_MAPPING_URL, true);
+          }
+          Result result = postcss.process(srcFile, (destFile != null) ? destFile : srcFile);
+          if (destFile == null) {
+            System.out.println(result.css());
+          } else {
+            result.writeCSS();
+          }
+        }
+      }
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+      System.exit(2);
     }
   }
 
